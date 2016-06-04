@@ -1,4 +1,5 @@
 import gzip
+import os.path as P
 #
 import boto
 import warc
@@ -18,7 +19,8 @@ class CCJob(MRJob):
   def mapper(self, _, line):
     f = None
     ## If we're on EC2 or running on a Hadoop cluster, pull files via S3
-    if self.options.runner in ['emr', 'hadoop']:
+    local_path = P.join(P.abspath(P.dirname(__file__)), line)
+    if self.options.runner in ['emr', 'hadoop'] or not P.isfile(local_path):
       # Connect to Amazon S3 using anonymous credentials
       conn = boto.connect_s3(anon=True)
       pds = conn.get_bucket('aws-publicdatasets')
@@ -27,8 +29,8 @@ class CCJob(MRJob):
       f = warc.WARCFile(fileobj=GzipStreamFile(k))
     ## If we're local, use files on the local file system
     else:
-      print 'Loading local file {}'.format(line)
-      f = warc.WARCFile(fileobj=gzip.open(line))
+      print 'Loading local file {}'.format(local_path)
+      f = warc.WARCFile(fileobj=gzip.open(local_path))
     ###
     for i, record in enumerate(f):
       for key, value in self.process_record(record):
