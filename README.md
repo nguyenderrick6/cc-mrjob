@@ -76,7 +76,16 @@ By default, EMR machines run with Python 2.6.
 The configuration file automatically installs Python 2.7 on your cluster for you.
 The steps to do this are documented in `mrjob.conf`.
 
-To run the job on Amazon Elastic MapReduce (their automated Hadoop cluster offering), you need to add your AWS access key ID and AWS access key to `mrjob.conf`.
+The three job examples in this repository (tag\_counter.py, server\_analysis.py, word\_count.py) rely on a common module -- mrcc.py.
+By default, this module will not be present when you run the examples on Elastic MapReduce, so you have to include it explicitly.
+You have two options:
+
+1. [Deploy your source tree as a tarball](http://pythonhosted.org/mrjob/guides/setup-cookbook.html#putting-your-source-tree-in-pythonpath)
+2. Copy-paste the code from mrcc.py into the job example that you are trying to run.
+
+    cat mrcc.py tag_counter.py | sed "s/from mrcc import CCJob//" > tag_counter_emr.py
+
+To run the job on Amazon Elastic MapReduce (their automated Hadoop cluster offering), you need to add your AWS access key ID and AWS access key to `mrjob.conf` (or set the corresponding environmental variables).
 By default, the configuration file only launches two machines, both using spot instances to be cost effective.
 
     python tag_counter.py -r emr --conf-path mrjob.conf --no-output --output-dir out input/test-100.warc
