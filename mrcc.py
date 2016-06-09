@@ -38,19 +38,7 @@ class CCJob(MRJob):
       self.increment_counter('commoncrawl', 'processed_records', 1)
 
   def combiner(self, key, value):
-    try:
-      yield key, sum(value)
-    except ValueError as e:
-      #
-      # These errors happen occasionally. I'm not sure why.
-      # https://github.com/Yelp/mrjob/issues/544
-      #
-      if not e.message.startswith("Expecting value: "):
-        raise
+    yield key, sum(value)
 
   def reducer(self, key, value):
-    try:
-      yield key, sum(value)
-    except ValueError as e:
-      if not e.message.startswith("Expecting value: "):
-        raise
+    yield key, sum(value)
